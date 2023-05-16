@@ -1,18 +1,27 @@
 occasion_keyword_map = {
-    "birthday": ["balloons", "cake", "cupcakes"],
-    "christmas": ["Christmas tree", "Santa Claus", "snowman", "gnome", "poinsettia"],
-    "engagement": ["fireworks", "champagne", "lovebirds"],
-    "graduation": ["caps and gowns", "diplomas", "graduation"],
-    "get well": ["flowers", "medicine", "pillows"],
-    "halloween": ["ghost", "pumpkin", "witch", "skeleton", "vampire"],
-    "love": ["hearts", "cupid", "lovebirds"],
-    "mother's day": ["floral", "ribbons", "mother and child"],
-    "pregnancy": ["balloons", "cake", "cupcakes"],
-    "thanks giving": ["turkey", "pumpkins", " fall leaves"],
-    "teacher's day": ["books", "apples", "coffee mugs"],
-    "valentines": ["hearts", "chocolate", "roses"],
-    "wedding": ["flowers", "wedding dress", "doves"],
+    "Birthday": ["balloons", "cake", "cupcakes"],
+    "Christmas": ["Christmas tree", "Santa Claus", "snowman", "gnome", "poinsettia"],
+    "Engagement": ["fireworks", "champagne", "lovebirds"],
+    "Graduation": ["caps and gowns", "diplomas", "graduation"],
+    "Get well": ["flowers", "medicine", "pillows"],
+    "Halloween": ["ghost", "pumpkin", "witch", "skeleton", "vampire"],
+    "Love": ["hearts", "cupid", "lovebirds"],
+    "Mother's day": ["floral", "ribbons", "mother and child"],
+    "Pregnancy": ["balloons", "cake", "cupcakes"],
+    "Thanksgiving": ["turkey", "pumpkins", " fall leaves"],
+    "Teacher's day": ["books", "apples", "coffee mugs"],
+    "Valentines": ["hearts", "chocolate", "roses"],
+    "Wedding": ["flowers", "wedding dress", "doves"],
 }
+
+tone_select_options = [
+    "Affectionate", "Love", "Cozy",
+    "Encouraging", "Exciting", "Friendly",
+    "Funny", "Formal", "Grateful", "Happy",
+    "Hopeful", "Inspirational", "Joyful",
+    "Motivational", "Proud", "Sassy",
+    "Serious", "Spooky", "Warm"
+]
 
 catalog_urls = [
     'https://pub-8b49af329fae499aa563997f5d4068a4.r2.dev/generations/1682497131_out.png',
