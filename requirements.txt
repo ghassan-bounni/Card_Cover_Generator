@@ -1,8 +1,9 @@
-rembg~=2.0.36
-boto3~=1.26.133
+rembg==2.0.37
+boto3==1.26.134
 Pillow~=9.5.0
 requests~=2.30.0
-botocore~=1.29.102
+botocore==1.29.134
 numpy==1.24.3
 python-dotenv~=1.0.0
 streamlit~=1.22.0
+st-pages~=0.4.1
