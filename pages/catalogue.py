@@ -4,6 +4,12 @@ import streamlit as st
 from PIL import Image
 from constants import catalog_urls
 
+st.markdown("""
+<style>
+footer {visibility : hidden;}
+</style>
+""", unsafe_allow_html=True)
+
 st.title(":frame_with_picture: Browse Designs")
 st.write("Checkout some of our generated cover designs")
 

@@ -11,6 +11,12 @@ show_pages(
     ]
 )
 
+st.markdown("""
+<style>
+footer {visibility : hidden;}
+</style>
+""", unsafe_allow_html=True)
+
 if 'page' not in st.session_state:
     st.session_state.page = 1
 
