@@ -7,7 +7,6 @@ occasion_keyword_map = {
     "Halloween": ["ghost", "pumpkin", "witch", "skeleton", "vampire"],
     "Love": ["hearts", "cupid", "lovebirds"],
     "Mother's day": ["floral", "ribbons", "mother and child"],
-    "Pregnancy": ["balloons", "cake", "cupcakes"],
     "Thanksgiving": ["turkey", "pumpkins", " fall leaves"],
     "Teacher's day": ["books", "apples", "coffee mugs"],
     "Valentines": ["hearts", "chocolate", "roses"],

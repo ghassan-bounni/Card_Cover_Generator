@@ -1,9 +1,11 @@
 import streamlit as st
 from components import form
 from st_pages import Page, show_pages
+from results import results
 
 st.set_page_config(page_title="Card Cover Generator", page_icon="📚", initial_sidebar_state="expanded")
 
+# rename pages
 show_pages(
     [
         Page("app.py", "Customize Your Card", ":pencil2:"),
@@ -28,3 +30,6 @@ if st.session_state.page == 1:
         st.session_state.page = 2
         st.session_state.data = form_data
         st.experimental_rerun()
+
+elif st.session_state.page == 2:
+    results()
