@@ -10,14 +10,14 @@ from botocore.exceptions import ClientError
 dotenv.load_dotenv()
 
 
-def generate_card_images(reason_keywords, orientation="portrait", clean="n"):
+def generate_card_images(reason_keywords, orientation="Portrait", clean=None):
     # using stable-diffusion api to generate image for card
-    if orientation == "portrait":
-        width = 1024
-        height = 744
-    else:
+    if orientation == "Portrait":
         width = 744
         height = 1024
+    else:
+        width = 1024
+        height = 744
     output = []
     for i in range(len(reason_keywords)):
         json = {
@@ -59,7 +59,7 @@ def generate_card_images(reason_keywords, orientation="portrait", clean="n"):
         if not response.json()["status"] == "failed":
             output.append(res[0])
 
-    if clean == "y":
+    if clean:
         cleaned = []
         for url in output:
             cleaned.append(remove_bg(url))
@@ -73,7 +73,7 @@ def upscale_images(img_urls):
     upscale_urls = []
     for i, img_url in enumerate(img_urls):
         json = {
-            "key": os.environ["SD_UPSCALE_URL"],
+            "key": os.environ["SD_API_KEY"],
             "url": img_url,
             "scale": 2,
             "webhook": "null",
@@ -106,7 +106,7 @@ def upscale_images(img_urls):
 
         upscale_urls.append(res)
 
-    return upscale_urls
+    return [Image.open(requests.get(url, stream=True).raw) for url in upscale_urls]
 
 
 def upload_file(file_name, bucket, object_name=None):
@@ -138,24 +138,17 @@ def upload_file(file_name, bucket, object_name=None):
 
 
 def remove_bg(url):
-    file_name = f"images/{url.split('/')[-1]}"
-    output_path = f"images/clean/{url.split('/')[-1]}"
-    r = requests.get(url, timeout=60)
+    r = requests.get(url, stream=True, timeout=60)
+    output = None
     if r.status_code == 200:
-        with open(file_name, "wb") as f:
-            f.write(r.content)
-    try:
-        input_img = Image.open(file_name)
-        output = remove(input_img)
-        output.save(output_path)
-    except IOError as error:
-        print(str(error))
+        img = Image.open(r.raw)
+        output = remove(img)
+        output.save(f"{url.split('/')[-1]}")
 
-    res, url = upload_file(output_path, os.environ['S3_BUCKET_NAME'])
+    res, res_url = upload_file(f"{url.split('/')[-1]}", os.environ['S3_BUCKET_NAME'])
     if not res:
         print("Upload failed")
 
-    os.remove(file_name)
-    os.remove(output_path)
+    os.remove(f"{url.split('/')[-1]}")
 
     return res_url
