@@ -63,23 +63,15 @@ def generate_card_images(reason_keywords, orientation="portrait", clean="n"):
         cleaned = []
         for url in output:
             cleaned.append(remove_bg(url))
-        return {
-            "original": output,
-            "cleaned": cleaned,
-            "upscale": upscale_images(output),
-            "cleaned_upscale": upscale_images(cleaned),
-        }
+        return upscale_images(output), upscale_images(cleaned)
 
-    return {
-        "original": output,
-        "upscale": upscale_images(output),
-    }
+    return upscale_images(output), None
 
 
 def upscale_images(img_urls):
     # using stable-diffusion api to upscale image
     upscale_urls = []
-    for img_url in img_urls:
+    for i, img_url in enumerate(img_urls):
         json = {
             "key": os.environ["SD_UPSCALE_URL"],
             "url": img_url,
@@ -87,8 +79,32 @@ def upscale_images(img_urls):
             "webhook": "null",
             "face_enhance": "false",
         }
-        response = requests.post(os.environ["SD_UPSCALE_URL"], json=json, timeout=60).json()
-        upscale_urls.append(response["output"])
+        response = requests.post(os.environ["SD_UPSCALE_URL"], json=json, timeout=60)
+        status = response.json()["status"]
+        res = None
+
+        if "success" == status:
+            res = response.json()["output"]
+        elif status == "failed":
+            i -= 1
+        else:
+            res = None
+            print(response.json())
+            res_id = response.json()["id"]
+            while not res:
+                response = requests.post(
+                    os.environ["SD_FETCH_URL"],
+                    json={"key": os.environ["SD_API_KEY"], "request_id": res_id},
+                    timeout=60,
+                )
+                if response.json()["status"] == "success":
+                    res = response.json()["output"]
+                    break
+                elif response.json()["status"] == "failed":
+                    i -= 1
+                    break
+
+        upscale_urls.append(res)
 
     return upscale_urls
 
@@ -142,4 +158,4 @@ def remove_bg(url):
     os.remove(file_name)
     os.remove(output_path)
 
-    return url
+    return res_url
