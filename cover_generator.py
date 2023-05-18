@@ -38,26 +38,27 @@ def generate_card_images(reason_keywords, orientation="Portrait", clean=None):
             "height": height,
             "scheduler": "EulerAncestralDiscreteScheduler",
         }
-        response = requests.post(os.environ["SD_TEXT2IMG_URL"], json=json, timeout=60)
-        res = response.json()["output"]
-        res_id = response.json()["id"]
+        response = requests.post(os.environ["SD_TEXT2IMG_URL"], json=json, timeout=200).json()
+        status = response["status"]
 
-        while not res:
-            response = requests.post(
-                os.environ["SD_FETCH_URL"],
-                json={"key": os.environ["SD_API_KEY"], "request_id": res_id},
-                timeout=200,
-            )
-            if response.json()["status"] == "success":
-                res = response.json()["output"]
-                break
-            elif response.json()["status"] == "failed":
-                print(f"retrying img {i}")
-                i = i - 1
-                break
-
-        if not response.json()["status"] == "failed":
-            output.append(res[0])
+        if status == "success":
+            output.append(response["output"][0])
+        elif status == "failed":
+            i -= 1
+        else:
+            res_id = response["id"]
+            while True:
+                response = requests.post(
+                    os.environ["SD_FETCH_URL"],
+                    json={"key": os.environ["SD_API_KEY"], "request_id": res_id},
+                    timeout=200,
+                ).json()
+                if response["status"] == "success":
+                    output.append(response["output"])
+                    break
+                elif response["status"] == "failed":
+                    i -= 1
+                    break
 
     if clean:
         cleaned = []
@@ -68,7 +69,7 @@ def generate_card_images(reason_keywords, orientation="Portrait", clean=None):
     return upscale_images(output), None
 
 
-def upscale_images(img_urls):
+def upscale_images(img_urls, orientation="Portrait"):
     # using stable-diffusion api to upscale image
     upscale_urls = []
     for i, img_url in enumerate(img_urls):
@@ -79,34 +80,38 @@ def upscale_images(img_urls):
             "webhook": "null",
             "face_enhance": "false",
         }
-        response = requests.post(os.environ["SD_UPSCALE_URL"], json=json, timeout=60)
-        status = response.json()["status"]
-        res = None
+        response = requests.post(os.environ["SD_UPSCALE_URL"], json=json, timeout=60).json()
+        status = response["status"]
 
-        if "success" == status:
-            res = response.json()["output"]
+        if status == "success":
+            upscale_urls.append(response["output"])
         elif status == "failed":
             i -= 1
         else:
-            res = None
-            print(response.json())
-            res_id = response.json()["id"]
-            while not res:
+            res_id = response["id"]
+            while True:
                 response = requests.post(
                     os.environ["SD_FETCH_URL"],
                     json={"key": os.environ["SD_API_KEY"], "request_id": res_id},
                     timeout=60,
-                )
-                if response.json()["status"] == "success":
-                    res = response.json()["output"]
+                ).json()
+                if response["status"] == "success":
+                    upscale_urls.append(response["output"][0])
                     break
-                elif response.json()["status"] == "failed":
+                elif response["status"] == "failed":
                     i -= 1
                     break
-        print(res)
-        upscale_urls.append(res)
 
-    return [Image.open(requests.get(url, stream=True).raw) for url in upscale_urls]
+    if orientation == "Portrait":
+        new_size = (1537, 2136)
+        final_size = (1539, 2175)
+    else:
+        new_size = (2136, 1537)
+        final_size = (2175, 1539)
+    return [
+        Image.open(requests.get(url, stream=True).raw).convert("RGBA").resize(new_size).resize(final_size) for url in
+        upscale_urls
+    ]
 
 
 def upload_file(file_name, bucket, object_name=None):
@@ -139,7 +144,6 @@ def upload_file(file_name, bucket, object_name=None):
 
 def remove_bg(url):
     r = requests.get(url, stream=True, timeout=60)
-    output = None
     if r.status_code == 200:
         img = Image.open(r.raw)
         output = remove(img)
