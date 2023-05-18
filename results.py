@@ -1,4 +1,5 @@
 import io
+import random
 import streamlit as st
 from text_generator import generate_card_text
 from cover_generator import generate_card_images
@@ -29,7 +30,7 @@ def results():
             img.save(buf, format='PNG')
             byte_im = buf.getvalue()
             cols[i % 3].download_button("Download", byte_im, file_name=f"img_{i}.png",
-                                        help="Download this image", key=i)
+                                        help="Download this image", key=random.randint(1, 1000000))
 
     if "cleaned_images" in st.session_state:
         st.write("Transparent Background")
@@ -38,10 +39,10 @@ def results():
         for i, img in enumerate(st.session_state.cleaned_images):
             im = cleaned_cols[i % 3].image(img, use_column_width=True)
             buf = io.BytesIO()
-            im.save(buf, format='PNG')
+            img.save(buf, format='PNG')
             byte_im = buf.getvalue()
             cleaned_cols[i % 3].download_button("Download", byte_im, file_name=f"img_{i}_transparent.png",
-                                                help="Download this image", key=i)
+                                                help="Download this image", key=random.randint(1, 1000000))
 
     clean = st.checkbox("Do you want a transparent background?")
 
@@ -59,3 +60,5 @@ def results():
 
             if cleaned_images:
                 st.session_state.cleaned_images = cleaned_images
+
+            st.experimental_rerun()

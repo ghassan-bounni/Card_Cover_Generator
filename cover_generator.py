@@ -46,7 +46,7 @@ def generate_card_images(reason_keywords, orientation="Portrait", clean=None):
             response = requests.post(
                 os.environ["SD_FETCH_URL"],
                 json={"key": os.environ["SD_API_KEY"], "request_id": res_id},
-                timeout=60,
+                timeout=200,
             )
             if response.json()["status"] == "success":
                 res = response.json()["output"]
@@ -103,7 +103,7 @@ def upscale_images(img_urls):
                 elif response.json()["status"] == "failed":
                     i -= 1
                     break
-
+        print(res)
         upscale_urls.append(res)
 
     return [Image.open(requests.get(url, stream=True).raw) for url in upscale_urls]
